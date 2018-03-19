@@ -46,6 +46,11 @@ INSTALLED_APPS = [
     'xadmin',
     'crispy_forms',
 ]
+# set the self authentication
+AUTHENTICATION_BACKENDS = (
+    'users.views.CustomBackend',
+)
+
 
 # override the default users Model
 AUTH_USER_MODEL = "users.UserProfile"
@@ -129,3 +134,4 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
