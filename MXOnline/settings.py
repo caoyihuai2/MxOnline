@@ -136,4 +136,14 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+# set the static file(css, js, images, media)
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+# set the send_email host
+EMAIL_HOST = "smtp.163.com"
+EMAIL_PORT = "25"
+EMAIL_HOST_USER = "15007138899@163.com"
+EMAIL_HOST_PASSWORD = "CC960225"
+EMAIL_USE_TLS = False
+EMAIL_FROM = "15007138899@163.com"
+

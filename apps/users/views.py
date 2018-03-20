@@ -10,7 +10,8 @@ from django.contrib.auth import authenticate, login
 from django.views.generic.base import View
 
 from users.form import LoginForm, RegisterForm
-from users.models import UserProfile
+from users.models import UserProfile, EmailVerifyRecord
+from utils.send_email import send_register_mail
 
 
 # 配置自定义的登录认证
@@ -36,8 +37,11 @@ class LoginView(View):
             password = request.POST.get("password", "")
             user = authenticate(username=user_name, password=password)
             if user is not None:
-                login(request, user)
-                return render(request, "index.html", {"username": user.username})
+                if user.is_active:
+                    login(request, user)
+                    return render(request, "index.html", {"username": user.username})
+                else:
+                    return render(request, "login.html", {"msg": "用户未激活"})
             else:
                 return render(request, "login.html", {"msg": "用户名或密码错误"})
         else:
@@ -53,11 +57,29 @@ class RegisterView(View):
     def post(self, request):
         register_form = RegisterForm(request.POST)
         if register_form.is_valid():
-            user_name = request.POST.get("username", "")
+            user_name = request.POST.get("email", "")
             password = request.POST.get("password", "")
             user_profile = UserProfile()
+            user_profile.is_active = False
             user_profile.username = user_name
             user_profile.email = user_name
             user_profile.password = make_password(password)
             user_profile.save()
 
+            send_register_mail(user_profile.email, 'register')
+            return render(request, "login.html")
+        else:
+            return render(request, "register.html")
+
+
+# 用户激活
+class UserActiveView(View):
+    def get(self, request, active_code):
+        all_records = EmailVerifyRecord.objects.filter(code=active_code)
+        if all_records:
+            for record in all_records:
+                email = record.email
+                user = UserProfile.objects.get(email=email)
+                user.is_active = True
+                user.save()
+        return render(request, "login.html")
