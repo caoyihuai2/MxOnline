@@ -35,6 +35,7 @@ class EmailVerifyRecord(models.Model):
 
     code = models.CharField(max_length=20, verbose_name="验证码")
     email = models.EmailField(max_length=50, verbose_name="邮箱")
+    is_click = models.BooleanField(default=False, verbose_name="是否点击")
     send_type = models.CharField(choices=TYPE_ITEMS, max_length=10, verbose_name="发送类型")
     send_time = models.DateTimeField(default=datetime.now, verbose_name="发送时间")
 

@@ -1,16 +1,20 @@
 # -*- coding:utf-8 -*-
 from random import Random
 
+from datetime import datetime
+from django.utils import timezone
+
 from users.models import EmailVerifyRecord
 from django.core.mail import send_mail
 
 from MXOnline.settings import EMAIL_FROM
+
 __author__ = 'cao.yh'
 __date__ = '2018/3/20 上午9:18'
 
 
 # 生成随机字符串
-def generate_random_string(randomlength = 8):
+def generate_random_string(randomlength=8):
     string = ''
     chars = 'qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPKLJHGFDSAZXCVBNM1234567890'
     length = len(chars) - 1
@@ -45,4 +49,17 @@ def send_register_email(email, send_type="register"):
         if send_status:
             pass
 
+
+# 检查邮件链接是否有效
+def check_email_valid(code):
+    record = EmailVerifyRecord.objects.get(code=code)
+    if record and record.is_click is not True:
+        send_time = record.send_time
+        local_time = datetime.now()
+        time = (local_time - send_time).days
+        if time == 0:
+            record.is_click = True
+            record.save()
+            return True, record.email
+    return False, record.email
 

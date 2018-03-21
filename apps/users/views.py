@@ -11,7 +11,7 @@ from django.views.generic.base import View
 
 from users.form import LoginForm, RegisterForm, ForgetPwdForm, ModifyPwdForm
 from users.models import UserProfile, EmailVerifyRecord
-from utils.send_email import send_register_email
+from utils.send_email import send_register_email, check_email_valid
 
 
 # 配置自定义的登录认证
@@ -78,17 +78,22 @@ class RegisterView(View):
 # 用户激活
 class UserActiveView(View):
     def get(self, request, active_code):
-        # 从URL中提取active_code
-        all_records = EmailVerifyRecord.objects.filter(code=active_code)
-        if all_records:
-            for record in all_records:
-                email = record.email
-                user = UserProfile.objects.get(email=email)
-                user.is_active = True
-                user.save()
+        flag, email = check_email_valid(active_code)
+        if flag:
+            return render(request, "login.html")
         else:
-            return render(request, "active_failed.html")
-        return render(request, "login.html")
+            return render(request, "active_failed.html", {})
+        # 从URL中提取active_code
+        # all_records = EmailVerifyRecord.objects.filter(code=active_code)
+        # if all_records:
+        #     for record in all_records:
+        #         email = record.email
+        #         user = UserProfile.objects.get(email=email)
+        #         user.is_active = True
+        #         user.save()
+        # else:
+        #     return render(request, "active_failed.html")
+        # return render(request, "login.html")
 
 
 # 忘记密码
@@ -110,13 +115,18 @@ class ForgetPwdView(View):
 # 处理邮件链接
 class ResetPwdView(View):
     def get(self, request, reset_code):
-        all_records = EmailVerifyRecord.objects.filter(code=reset_code)
-        if all_records:
-            for record in all_records:
-                email = record.email
-                return render(request, "password_reset.html", {'email': email})
+        flag, email = check_email_valid(reset_code)
+        if flag:
+            return render(request, "password_reset.html", {'email': email})
         else:
             return render(request, "active_failed.html", {})
+        # all_records = EmailVerifyRecord.objects.filter(code=reset_code)
+        # if all_records:
+        #     for record in all_records:
+        #         email = record.email
+        #         return render(request, "password_reset.html", {'email': email})
+        # else:
+        #     return render(request, "active_failed.html", {})
 
 
 # 修改密码
