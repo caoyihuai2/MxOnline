@@ -41,12 +41,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'captcha',
+    'xadmin',
+    'crispy_forms',
+    'pure_pagination',
+    
     'users',
     'courses',
     'organization',
     'operation',
-    'xadmin',
-    'crispy_forms',
+
 ]
 # set the self authentication
 AUTHENTICATION_BACKENDS = (
@@ -81,6 +84,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
             ],
         },
     },
@@ -136,7 +140,7 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-# set the static file(css, js, images, media)
+# set the static file(css, js, images)
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # set the send_email host
@@ -146,3 +150,6 @@ EMAIL_HOST_USER = "15007138899@163.com"
 EMAIL_HOST_PASSWORD = "CC960225"
 EMAIL_USE_TLS = False
 EMAIL_FROM = "15007138899@163.com"
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

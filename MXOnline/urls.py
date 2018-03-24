@@ -15,7 +15,10 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.views.generic import TemplateView
+from django.views.static import serve
+
 import xadmin
+from MXOnline.settings import MEDIA_ROOT
 from users.views import LoginView, RegisterView, UserActiveView, ForgetPwdView, ResetPwdView, ModifyPwdView
 from organization.views import OrgView
 
@@ -30,6 +33,9 @@ urlpatterns = [
     url(r'^forgetpwd/$', ForgetPwdView.as_view(), name="forgetpwd"),
     url(r'^reset/(?P<reset_code>.*)/$', ResetPwdView.as_view(), name="resetpwd"),
     url(r'^modifypwd/$', ModifyPwdView.as_view(), name="modifypwd"),
-
+    # the index page of Org
     url(r'^org_list/$', OrgView.as_view(), name="org_list"),
+    # set the process of visiting to uploaded file
+    url(r'^media/(?P<path>.*)$', serve, {"document_root": MEDIA_ROOT})
+
 ]
