@@ -30,6 +30,8 @@ class CourseOrg(models.Model):
     category = models.CharField(max_length=20, choices=CATEGORY_ITEMS, default='pxjg', verbose_name="机构类别")
     click_nums = models.IntegerField(default=0, verbose_name="点击数")
     fav_nums = models.IntegerField(default=0, verbose_name="收藏数")
+    students = models.IntegerField(default=0, verbose_name="学习人数")
+    courses = models.IntegerField(default=0, verbose_name="课程数")
     image = models.ImageField(upload_to="org/%Y/%m", verbose_name="封面图片", max_length=100)
     address = models.CharField(max_length=150, verbose_name="机构地址")
     city = models.ForeignKey(CityDict, verbose_name="所在城市")
