@@ -33,8 +33,10 @@ urlpatterns = [
     url(r'^forgetpwd/$', ForgetPwdView.as_view(), name="forgetpwd"),
     url(r'^reset/(?P<reset_code>.*)/$', ResetPwdView.as_view(), name="resetpwd"),
     url(r'^modifypwd/$', ModifyPwdView.as_view(), name="modifypwd"),
-    # the index page of Org
-    url(r'^org_list/$', OrgView.as_view(), name="org_list"),
+
+    # set the Org urls
+    url(r'^org/', include('organization.urls', namespace="org")),
+
     # set the process of visiting to uploaded file
     url(r'^media/(?P<path>.*)$', serve, {"document_root": MEDIA_ROOT})
 
