@@ -1,0 +1,56 @@
+Django笔记：
+1.Django结构总览
+
+-------------------------------------
+|            Middleware             |    
+|             Template              |
+|              Form                 |
+|              View                 |
+|              Model                |
+|     DB    |     DB     |   DB     |
+-------------------------------------
+
+2.
+|-project_name
+ |-app_name
+  |-migrations:数据移植模块，内容自动生成
+  |-__init__.py
+  |-admin.py:该应用的后台管理系统配置
+  |-apps.py:该应用的一些配置
+  |-forms.py
+  |-models.py:数据模块，使用ORM框架，类似MVC中的Models
+  |-tests.py:自动化测试模块
+  |-views.py:执行响应的代码所在模块，代码逻辑处理的主要地点
+ |-project_name
+  |-manage.py:与项目进行交互的命令行工具集的入口
+  |-wsgi.py:Python应用与Web服务器之间的接口
+  |-urls.py:Django项目中所有地址（页面）都需要我们自己去配置其URL
+  |-settings.py:项目的总配置文件，里面包含了数据库，Web应用、时间等各种配置
+
+3.Context:context在Django里表现为Context类，它的构造函数带有一个可选的参数：一个字典映射变量和它们的值，调用Template对象的render()方法并传递context来填充模版。
+
+4.配置静态文件：setting.py文件中最后一行：STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+5.在setting.py中配置apps根搜索路径：（1）make dir as source root; 
+                                (2)import sys 
+                                (3)sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
+
+6.QUESTION: Migration admin.0001_initial is applied before its dependency users.0001_initial on database 'default'.
+  ANSWER: 删除数据库中的所有表，重新执行migrate appname
+
+7.目前官方稳定版xadmin1.9不支持Django1.11，解决方法：https://www.jianshu.com/p/65f9ee3d192d
+
+8.xadmin下设置"use_bootswatch = True"无效：my.oschina.net/u/2396236/blog/1083251
+
+9.项目中使用了xadmin, 并且我的UserProfiles 继承了django 自带的User,且重写了一些字段，在xadmin中注册时，出现了The model UserProfiles is already registered的错误。解决办法：先注销UserProfiels, 再重新注册.
+xadmin.site.unregister(UserProfiles)
+xadmin.site.register(UserProfiles, UserProfilesAdmin)
+
+10.在setting.py中用AUTH_USER_MODEL = "users.UserProfile"覆盖User
+
+11.Session是服务端保存的一个数据结构，用来跟踪用户的状态，这个数据可以保存在集群、数据库、文件中；Cookie是客服端保存用户信息的一种机制，用来记录用户的信息，也是实现Session的一种方式。
+
+12.{% load staticfiles %}
+href="{% url 'login' %}
+
+13.xadmin后台管理无法添加信息：http://blog.csdn.net/yuhan963/article/details/79167743

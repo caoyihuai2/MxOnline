@@ -1,0 +1,61 @@
+HTML-->view.py:
+class LoginView(View): # 这里的LoginView继承至from django.views.generic.base import View
+	def get(self, request): # 如果是get请求，则直接返回页面
+		return render(request, "login.html", {})
+
+
+	def post(self, request): #如果是post请求，则对邮箱和密码进行验证
+		login_form = LoginForm(request.POST) # 将前台的输入数据传至LoginForm进行初步验证
+		<
+		form.py:
+			class LoginForm(forms.Form): # from django import forms
+				# username和password必须同HTML中的form中一样
+				username = forms.CharField(required=True)
+				password = forms.CharField(required=True, min_length=5)
+		>
+		
+		if login_form.is_valid(): # login_form有效-->赋值
+			# username&password与HTML页面的name 相同
+			user_name = request.POST.get("username", "")
+			password = request.POST.get("password", "")
+			# 调用django.contrib.auth 中的authenticate函数，参数名必须是username和password
+			user = authenticate(username=user_name, password=password)
+
+		<由于Django中只有用户名登录，故需配置自定义登录认证：
+		views.py:
+			# CustomBackend继承至django.contrib.auth.backends import ModelBackend
+			class CustomBackend(ModelBackend):
+				def authenticated(self, request, username=None, password=None, **kwargs):
+					try:
+						#下面语句 == select * from userprofile where username = username OR email = email
+						user = UserProfile.objects.get(Q(username=username) | Q(email=username))
+						#password在数据库中经过加密，所以要用user.check_password(password)
+						if user.check_password(password):
+							return user # 验证成功则返回一个UserProfile对象
+					except Exception as e:
+						return None
+
+		setting.py
+		AUTHENTICATION_BACKENDS = ('user.views.CustomBackend')
+		>
+
+		if user is not None:
+			if user.is_active():
+				# 调用django.contrib.auth 中的login函数，该函数接受一个 HttpRequest 对象和一个 User 对象作为参数并使用Django的会话（ session ）框架把用户的ID保存在该会话中。
+				login(request, user)
+				# context是一个字典类型，在HTML页面通过{{ username }}可以取到user.username的值
+				return render(request, "index.html", {"username": user.username})
+			else:
+				return render(request, "login.html", {})
+		else:
+			return render(request, "login.html", {})
+	else:
+
+		return render(request, "login.html", {"login_form": login_form})
+
+		<在前台HTML页面可以显示login_form中的错误信息：
+			{% if login_form.errors is not None %}
+				{% for key, error in login_form.errors.items %}
+					{% key %}{% error %}
+				{% endfor %}
+			{% endif %}
