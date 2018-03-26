@@ -9,8 +9,10 @@ from pure_pagination import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic.base import View
 
 from operation.forms import UserAskForm
+from operation.models import UserFavorite
 from organization.models import CourseOrg, CityDict
 from courses.models import Course
+from utils.is_has_fav import has_fav
 
 
 class OrgView(View):
@@ -71,9 +73,11 @@ class AddUserAskView(View):
         userask_form = UserAskForm(request.POST)
         if userask_form.is_valid():
             user_ask = userask_form.save(commit=True)
+            # 返回Jason数据格式
             return HttpResponse('{"status":"success"}', content_type='application/json')
         else:
             return HttpResponse('{"status":"fail", "msg":"添加出错"}', content_type='application/json')
+
 
 class OrgHomeView(View):
     """
@@ -85,12 +89,16 @@ class OrgHomeView(View):
         all_courses = course_org.course_set.all()[:3]
         all_teachers = course_org.teacher_set.all()[:1]
 
+        # 判断是否已经收藏
+        is_has_fav = has_fav(request.user, int(org_id), 2)
+
         current_page = "home"
         return render(request, 'org-detail-homepage.html', {
             'all_courses': all_courses,
             'all_teachers': all_teachers,
             'course_org': course_org,
             'current_page': current_page,
+            'has_fav': is_has_fav,
         })
 
 
@@ -100,14 +108,17 @@ class OrgCourseView(View):
     """
     def get(self, request, org_id):
         course_org = CourseOrg.objects.get(id=int(org_id))
-        #根据Course中的外键course_org反向获取
+        # 根据Course中的外键course_org反向获取
         all_courses = course_org.course_set.all()
+
+        is_has_fav = has_fav(request.user, int(org_id), 2)
 
         current_page = 'course'
         return render(request, 'org-detail-course.html', {
             'all_courses': all_courses,
             'course_org': course_org,
             'current_page': current_page,
+            'has_fav': is_has_fav,
         })
 
 
@@ -118,10 +129,13 @@ class OrgDescView(View):
     def get(self, request, org_id):
         course_org = CourseOrg.objects.get(id=int(org_id))
 
+        is_has_fav = has_fav(request.user, int(org_id), 2)
+
         current_page = 'desc'
         return render(request, 'org-detail-desc.html', {
             'course_org': course_org,
             'current_page': current_page,
+            'has_fav': is_has_fav,
         })
 
 
@@ -133,9 +147,40 @@ class OrgTeacherView(View):
         course_org = CourseOrg.objects.get(id=int(org_id))
         all_teacher = course_org.teacher_set.all()
 
+        is_has_fav = has_fav(request.user, int(org_id), 2)
+
         current_page = 'teacher'
         return render(request, 'org-detail-teachers.html', {
             'all_teacher': all_teacher,
             'course_org': course_org,
             'current_page': current_page,
+            'has_fav': is_has_fav,
         })
+
+
+class AddFavOrgView(View):
+    """
+    收藏机构
+    """
+    def post(self, request):
+        fav_id = request.POST.get('fav_id', 0)
+        fav_type = request.POST.get('fav_type', 0)
+
+        if not request.user.is_authenticated():
+            # 判断用户是否登陆，json数据格式返回给ajax
+            return HttpResponse('{"status":"fail", "msg":"用户未登录"}', content_type='application/json')
+
+        exist_records = UserFavorite.objects.filter(user=request.user, fav_id=int(fav_id), fav_type=fav_type)
+        if exist_records:
+            exist_records.delete()
+            return HttpResponse('{"status":"success", "msg":"收藏"}', content_type='application/json')
+        else:
+            user_fav = UserFavorite()
+            if int(fav_id) > 0 and int(fav_type):
+                user_fav.user = request.user
+                user_fav.fav_id = int(fav_id)
+                user_fav.fav_type = int(fav_type)
+                user_fav.save()
+                return HttpResponse('{"status":"success", "msg":"已收藏"}', content_type='application/json')
+            else:
+                return HttpResponse('{"status":"fail"}, "msg":"收藏失败"', content_type='application/json')
