@@ -50,6 +50,7 @@ class Teacher(models.Model):
     work_years = models.IntegerField(default=0, verbose_name="工作年限")
     work_company = models.CharField(default=0, max_length=100, verbose_name="就职公司")
     work_position = models.CharField(default=0, max_length=100, verbose_name="工作职位")
+    image = models.ImageField(upload_to="teacher/%Y/%m", blank=True, null=True, verbose_name="头像")
     feature = models.CharField(max_length=50, verbose_name="教学特点")
     click_nums = models.IntegerField(default=0, verbose_name="点击数")
     fav_nums = models.IntegerField(default=0, verbose_name="收藏数")
@@ -57,3 +58,6 @@ class Teacher(models.Model):
 
     class Meta:
         verbose_name_plural = verbose_name = "教师"
+
+    def __unicode__(self):
+        return self.name

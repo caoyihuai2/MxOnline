@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 from django.db import models
-
+from organization.models import CourseOrg
 
 # Create your models here.
 
@@ -15,6 +15,7 @@ class Course(models.Model):
         ("high", "高级"),
     )
 
+    course_org = models.ForeignKey(CourseOrg, verbose_name="课程机构", null=True, blank=True)
     name = models.CharField(max_length=50, verbose_name="课程名称")
     desc = models.CharField(max_length=300, verbose_name="课程描述")
     detail = models.TextField(verbose_name="课程详情")
@@ -24,7 +25,7 @@ class Course(models.Model):
     fav_nums = models.IntegerField(default=0, verbose_name="收藏人数")
     image = models.ImageField(upload_to="course/%Y/%m", verbose_name="封面")
     click_nums = models.IntegerField(default=0, verbose_name="点击数")
-    add_time = models.DateTimeField(default=datetime, verbose_name="添加时间")
+    add_time = models.DateTimeField(default=datetime.now, verbose_name="添加时间")
 
     class Meta:
         verbose_name_plural = verbose_name = "课程"
@@ -36,7 +37,7 @@ class Course(models.Model):
 class Lesson(models.Model):
     course = models.ForeignKey(Course, verbose_name="课程")
     name = models.CharField(max_length=100, verbose_name="章节名称")
-    add_time = models.DateTimeField(default=datetime, verbose_name="添加时间")
+    add_time = models.DateTimeField(default=datetime.now, verbose_name="添加时间")
 
     class Meta:
         verbose_name_plural = verbose_name = "章节"
@@ -45,7 +46,7 @@ class Lesson(models.Model):
 class Video(models.Model):
     lesson = models.ForeignKey(Lesson, verbose_name="章节")
     name = models.CharField(max_length=100, verbose_name="视频名称")
-    add_time = models.DateTimeField(default=datetime, verbose_name="添加时间")
+    add_time = models.DateTimeField(default=datetime.now, verbose_name="添加时间")
 
     class Meta:
         verbose_name_plural = verbose_name = "视频"
