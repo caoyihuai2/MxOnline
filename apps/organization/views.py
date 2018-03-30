@@ -85,7 +85,7 @@ class OrgHomeView(View):
     """
     def get(self, request, org_id):
         course_org = CourseOrg.objects.get(id=int(org_id))
-        # 根据Teacher & Course 中的外键course_org反向获取
+        # 根据Teacher & Course 中的外键course_org反向获取(一对多)
         all_courses = course_org.course_set.all()[:3]
         all_teachers = course_org.teacher_set.all()[:1]
 

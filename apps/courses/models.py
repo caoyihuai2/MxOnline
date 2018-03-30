@@ -23,6 +23,8 @@ class Course(models.Model):
     learn_time_minute = models.IntegerField(default=0, verbose_name="学习时长")
     learn_students_nums = models.IntegerField(default=0, verbose_name="学习人数")
     fav_nums = models.IntegerField(default=0, verbose_name="收藏人数")
+    category = models.CharField(max_length=20, default="后台开发", verbose_name="课程分类")
+    tag = models.CharField(max_length=20, default="django", verbose_name="课程标签")
     image = models.ImageField(upload_to="course/%Y/%m", verbose_name="封面")
     click_nums = models.IntegerField(default=0, verbose_name="点击数")
     add_time = models.DateTimeField(default=datetime.now, verbose_name="添加时间")
@@ -32,6 +34,13 @@ class Course(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def get_lesson_nums(self):
+        return self.lesson_set.count()
+
+    def get_learn_users(self):
+        return self.usercourse_set.all()[:5]
+
 
 
 class Lesson(models.Model):
@@ -56,7 +65,7 @@ class CourseResource(models.Model):
     course = models.ForeignKey(Course, verbose_name="课程")
     name = models.CharField(max_length=100, verbose_name="资源名称")
     download = models.FileField(max_length=100, verbose_name="资源路径", upload_to="course/resource/%Y/%m")
-    add_time = models.DateTimeField(default=datetime, verbose_name="添加时间")
+    add_time = models.DateTimeField(default=datetime.now, verbose_name="添加时间")
 
     class Meta:
         verbose_name_plural = verbose_name = "课程资源"

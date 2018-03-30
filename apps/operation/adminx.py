@@ -14,7 +14,7 @@ class UserAskAdmin(object):
 class UserCourseAdmin(object):
     list_display = ['user', 'course', 'add_time']
     search_fields =['user', 'course']
-    list_filter = ['name', 'course', 'add_time']
+    list_filter = ['user', 'course', 'add_time']
 
 
 class UserMessageAdmin(object):
